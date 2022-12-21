@@ -11,6 +11,13 @@ SELECT b.bid, b.uid, b.title, b.content, b.modTime, b.viewCount,
 	ORDER BY bid DESC
 	LIMIT 10 OFFSET 0;
 
+-- 보드 users JOIN해서 게시글 정보 가져오기 --
+SELECT b.bid, b.uid, b.title, b.content, b.modTime, b.viewCount,"
+				+ "	b.replyCount, b.files, u.uname FROM board AS b"
+				+ "	JOIN users AS u"
+				+ "	ON b.uid=u.uid"
+				+ "	WHERE b.bid=?
+
 -- 보드 게시글 생성 --
 INSERT INTO board(bid, uid, title, content) VALUES
 	('admin', '게시판 사이트 오픈', '게시판 사이트를 오늘 오픈하였습니다. 만괂부'),

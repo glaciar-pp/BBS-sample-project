@@ -29,7 +29,7 @@ public class BoardDAO {
 		return conn;
 	}
 	
-	public List<Board> listUsers(String field, String query, int page) {
+	public List<Board> listBoard(String field, String query, int page) {
 		Connection conn = getConnection();
 		int offset = (page - 1) * 10;
 		String sql = "SELECT b.bid, b.uid, b.title, b.modTime, "
@@ -64,7 +64,7 @@ public class BoardDAO {
 		}
 		return list;
 	}
-
+	//
 	public int getBoardCount() {
 		Connection conn = getConnection();
 		String sql = "SELECT COUNT(title) FROM board WHERE isDeleted=0;";
@@ -84,8 +84,9 @@ public class BoardDAO {
 
 		return count;
 	}
-
-	public void insert(Board b) {
+	
+	//게시글 작성
+	public void insertBoard(Board b) {
 		Connection conn = getConnection();
 		String sql = "INSERT INTO board(uid, title, content, files) VALUES (?, ?, ?, ?);";
 		try {
@@ -102,7 +103,7 @@ public class BoardDAO {
 			e.printStackTrace();
 		}
 	}
-
+	//게시글 정보 가져오는 기능
 	public Board getBoardDetail(int bid) {
 		Connection conn = getConnection();
 		String sql = "SELECT b.bid, b.uid, b.title, b.content, b.modTime, b.viewCount,"
@@ -133,5 +134,71 @@ public class BoardDAO {
 			e.printStackTrace();
 		}
 		return b;
+	}
+	
+	//조회수 증가 기능
+	public void increaseViewCount(int bid) {
+		Connection conn = getConnection();
+		String sql = "UPDATE board SET viewCount=viewCount+1 WHERE bid=?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//댓글 수 증가 기능
+	public void increaseReplyCount(int bid) {
+		Connection conn = getConnection();
+		String sql = "UPDATE board SET replyCount=replyCount+1 WHERE bid=?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//게시글 지우기 기능
+	public void deleteBoard(int bid) {
+		Connection conn = getConnection();
+		String sql = "UPDATE board SET isDeleted=1 WHERE bid=?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, bid);
+			
+			pStmt.executeUpdate();
+			pStmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateBoard(Board b) {
+		Connection conn = getConnection();
+		String sql = "UPDATE board SET title=?, content=?, "
+				   + " modTime=NOW(), files=? WHERE bid=?;";
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, b.getTitle());
+			pStmt.setString(2, b.getContent());
+			pStmt.setString(3, b.getFiles());
+			pStmt.setInt(4, b.getBid());
+			
+			pStmt.executeUpdate();
+			pStmt.close(); conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

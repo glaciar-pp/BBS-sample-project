@@ -11,10 +11,10 @@ public class Reply {
 	private int bid;
 	private String uname;
 
-	Reply() {
+	public Reply() {
 	}
 
-	Reply(String content, int isMine, String uid, int bid) {
+	public Reply(String content, int isMine, String uid, int bid) {
 		super();
 		this.content = content;
 		this.isMine = isMine;
@@ -22,7 +22,7 @@ public class Reply {
 		this.bid = bid;
 	}
 
-	Reply(int rid, String content, LocalDateTime regDate, int isMine, String uid, int bid, String uname) {
+	public Reply(int rid, String content, LocalDateTime regDate, int isMine, String uid, int bid, String uname) {
 		super();
 		this.rid = rid;
 		this.content = content;

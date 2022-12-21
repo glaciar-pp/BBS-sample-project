@@ -26,6 +26,15 @@ public class Board {
 		this.content = content;
 		this.files = files;
 	}
+	
+	//게시글 수정 시 필요한 생성자
+	public Board(int bid, String title, String content, String files) {
+		super();
+		this.bid = bid;
+		this.title = title;
+		this.content = content;
+		this.files = files;
+	}
 
 	public Board(int bid, String uid, String uname, String title, String content, LocalDateTime modTime, int viewCount,
 			int replyCount, int isDeleted, String files) {
