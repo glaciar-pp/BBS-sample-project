@@ -15,12 +15,13 @@ import javax.servlet.http.HttpSession;
 
 import db.BoardDAO;
 import db.ReplyDAO;
+import misc.JSONUtil;
 
 
 /**
  * Servlet implementation class BoardController
  */
-@WebServlet({"/board/list", "/board/search", "/board/write", "/board/update",
+@WebServlet({"/board/list", "/board/write", "/board/update",
 			 "/board/detail", "/board/delete", "/board/deleteConfirm",
 			 "/board/reply"})
 
@@ -36,33 +37,52 @@ public class BoardController extends HttpServlet {
 		String sessionUid = (String) session.getAttribute("uid");
 		session.setAttribute("menu", "board");
 		
-		response.setContentType("text/html; charset=utf-8");
 		//중복적으로 나오는 항목은 상위에서 설정
-		String title = null, content = null, files = null, uid = null;
-		int bid = 0;
+		response.setCharacterEncoding("utf-8");
+		response.setContentType("text/html; charset=utf-8");
+		String title = null, content = null, files = null, uid = null, today = null;
+		int bid = 0, totalBoardNo = 0, totalPages = 0, page = 0;
 		Board board = null;
+		List<Board> list = null;
+		List<String> pageList = null;
 		RequestDispatcher rd = null;
 		
 		switch(action) {
 		case "list":
-			int page = Integer.parseInt(request.getParameter("page"));
-			List<Board> list = dao.listBoard("title", "", page);
+			String page_ = request.getParameter("p");
+			String field = request.getParameter("f");
+			String query = request.getParameter("q");
+			
+			page = (page_ == null || page_.equals("")) ? 1 : Integer.parseInt(page_);
+			field = (field == null || field.equals("")) ? "title" : field;
+			query = (query == null || query.equals("")) ? "" : query;
+			list = dao.listBoard(field, query, page);
 			
 			session.setAttribute("currentBoardPage", page);
-			int totalBoardNo = dao.getBoardCount();
-			int totalPages = (int) Math.ceil(totalBoardNo / 10.);
-			List<String> pageList = new ArrayList<>();
-			for (int i = 1; i <= totalPages; i++)
+			request.setAttribute("field", field);
+			request.setAttribute("query", query);
+			
+			totalBoardNo = dao.getBoardCount("bid", "");
+			totalPages = (int) Math.ceil(totalBoardNo / 10.);
+			
+			int startPage = (int)(Math.ceil((page-0.5)/10) - 1) * 10 + 1;
+			int endPage = Math.min(totalPages, startPage + 9);
+			
+			pageList = new ArrayList<>();
+			for (int i = startPage; i <= endPage; i++)
 				pageList.add(String.valueOf(i));
 			request.setAttribute("pageList", pageList);
+			request.setAttribute("startPage", startPage);
+			request.setAttribute("endPage", endPage);
+			request.setAttribute("totalPages", totalPages);
 			
-			String today = LocalDate.now().toString();		// 2022-12-20
+			today = LocalDate.now().toString();		// 2022-12-20
 			request.setAttribute("today", today);
 			request.setAttribute("boardList", list);
 			rd = request.getRequestDispatcher("/board/list.jsp");
 			rd.forward(request, response);
 			break;
-			
+		
 		case "detail":
 			bid = Integer.parseInt(request.getParameter("bid"));
 			uid = request.getParameter("uid");
@@ -72,6 +92,12 @@ public class BoardController extends HttpServlet {
 				dao.increaseViewCount(bid);
 			}
 			board = dao.getBoardDetail(bid);
+			String jsonFiles = board.getFiles();
+			if (!(jsonFiles == null || jsonFiles.equals(""))) {
+				JSONUtil json = new JSONUtil();
+				List<String> fileList = json.parse(jsonFiles);
+				request.setAttribute("fileList", fileList);
+			}
 			request.setAttribute("board", board);
 			List<Reply> replyList = replyDao.getReplies(bid); //이제 댓글을 뷰잉 해줄수 있게 됨
 			request.setAttribute("replyList", replyList);
@@ -84,13 +110,16 @@ public class BoardController extends HttpServlet {
 			if (request.getMethod().equals("GET")) {
 				response.sendRedirect("/bbs/board/write.jsp");
 			} else {
-				title = request.getParameter("title");
-				content = request.getParameter("content");
-				files = request.getParameter("files");
+				
+				// /board/fileUpload로 부터 전달된 데이터를 읽음
+				title = (String) request.getAttribute("title");
+				content = (String) request.getAttribute("content");
+				files = (String) request.getAttribute("files");
+				//System.out.println("title=" + title + ", files=" + files);
 				
 				board = new Board(sessionUid, title, content, files);
 				dao.insertBoard(board);
-				response.sendRedirect("/bbs/board/list?page=1");
+				response.sendRedirect("/bbs/board/list?p=1&f=&q=");
 			}
 			break;
 		
@@ -114,7 +143,7 @@ public class BoardController extends HttpServlet {
 		case "deleteConfirm":
 			bid = Integer.parseInt(request.getParameter("bid"));
 			dao.deleteBoard(bid);
-			response.sendRedirect("/bbs/board/list?page=" + session.getAttribute("currentBoardPage"));
+			response.sendRedirect("/bbs/board/list?p=" + session.getAttribute("currentBoardPage") + "&f=&q=");
 			break;
 			/*delete와 Confirm도 GET & POST 방식으로 하는게 정석이나 
 			yes, no 정보의 정보가 끝이다보니 워낙 양이 적어 이렇게 편법(?)으로 처리가 가능함*/
@@ -135,7 +164,7 @@ public class BoardController extends HttpServlet {
 				
 				board = new Board(bid, title, content, files);
 				dao.updateBoard(board);
-				response.sendRedirect("/bbs/board/detail?bid=" + bid + "&uid=" + uid);
+				response.sendRedirect("/bbs/board/detail?bid=" + bid + "&uid=" + uid); 
 				//response.sendRedirect("/bbs/board/detail?bid=" + bid + "&uid=" + uid + "&option=DNI");
 				//정보 새로 받은 후 원래 글 자리대로 감. uid 부분은 수정권한을 본인에게만 줬기 때문에 꼭 필수는 아님
 			}

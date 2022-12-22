@@ -33,7 +33,7 @@
                 <div class="row">
 			        <div class="col-1"></div>
 			        <div class="col-10">
-					    <form action="/bbs/board/upload" method="post" enctype="multipart/form-data">
+					    <form action="/bbs/board/fileupload" method="post" enctype="multipart/form-data">
 							<!-- 파일 업로드 기능 넣을때 enctype 안넣어주면 적용 안되니 꼭 넣을 것 -->
 					    	<table class="table table-borderless">
 					    		<tr>
@@ -42,7 +42,7 @@
 					    		</tr>
 					    		<tr>
 					    			<td>파일:</td>
-					    			<td><input class="form-control" type="file" name="file1" id="file1"></td>
+					    			<td><input class="form-control" type="file" placeholder="첨부파일" name="files" multiple /></td>
 			                        <td><input class="form-control" type="file" name="file2" id="file2"></td>
 					    		</tr>
 					    		<tr>

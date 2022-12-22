@@ -65,7 +65,7 @@ public class UserController extends HttpServlet {
 						
 						// Welcome message
 						request.setAttribute("msg", u.getUname() + "님 환영합니다.");
-						request.setAttribute("url", "/bbs/board/list?page=1");
+						request.setAttribute("url", "/bbs/board/list?p=1&f=&q=");
 						rd = request.getRequestDispatcher("/user/alertMsg.jsp");
 						rd.forward(request, response);
 					} else {

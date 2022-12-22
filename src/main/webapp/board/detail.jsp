@@ -13,23 +13,27 @@
     </style>
 </head>
 
-<body>
+<body style="height: 2000px">
 	<%@ include file="../common/top.jsp" %>
 	
 		<div class="container" style="margin-top: 80px;">
 		<div class="row">
 			<%@ include file="../common/aside.jsp" %>
+			
+			<!-- =================== main =================== -->
 			<div class="col-sm-9">
                 <h3><strong>게시글 상세 조회</strong>
                     <span style="font-size: 0.6em;">
-                        <a href="/bbs/board/list?page=${currentBoardPage}" class="ms-5"><i class="fas fa-list-ul"></i>목록</a>
+                        <a href="/bbs/board/list?p=${currentBoardPage}&f=&q=" class="ms-5"><i class="fas fa-list-ul"></i>목록</a>
+                        
                         <!-- 본인만 수정 가능 -->
                         <c:if test="${board.uid eq uid}">
-                        <a href="/bbs/board/update?bid=${board.bid}" class="ms-3"><i class="far fa-edit"></i>수정</a>  <!-- uid, bid -->
+                        <a href="/bbs/board/update?bid=${board.bid}" class="ms-3"><i class="far fa-edit"></i>수정</a>
                          </c:if>
                         <c:if test="${board.uid ne uid}">
-                        <a href="#" class="ms-3 disabled-link"><i class="far fa-edit"></i>수정</a>  <!-- uid, bid -->
+                        <a href="#" class="ms-3 disabled-link"><i class="far fa-edit"></i>수정</a> 
                         </c:if>
+                        
                         <!-- 본인만 삭제 가능 -->
                          <c:if test="${board.uid eq uid}">
                         <a href="/bbs/board/delete?bid=${board.bid}" class="ms-3"><i class="fas fa-trash-alt"></i>삭제</a>
@@ -44,7 +48,11 @@
                     <div class="col-8">
                         <h5>${board.title}</h5>
                         <h6>글 번호: ${board.bid} | ${fn:replace(board.modTime, 'T', ' ')}</h6>
-                        <h6>첨부 파일: </h6>
+                        <h6>첨부 파일: 
+                        <c:forEach var="file" items="${fileList}">
+                        	<a href="/bbs/board/download?file=${file}" class="me-2" download>${file}</a>
+                        </c:forEach>
+                        </h6>
                     </div>
                     <div class="col-4 text-end">
                         <h5>${board.uname}</h5>
@@ -58,6 +66,7 @@
 
                     <div class="col-12"><hr></div>
                     <div class="col-12">
+                    <!-- 댓글 -->
                     <c:forEach var="reply" items="${replyList}">
                     <c:if test="${reply.isMine eq 0}">
                         <div class="d-flex flex-row mt-1">
@@ -68,7 +77,8 @@
                                 </div>
                             </div>
                         </div>
-                    </c:if>    
+                    </c:if>
+                    <!-- 대댓글 -->    
                     <c:if test="${reply.isMine eq 1}">
                         <div class="d-flex flex-row-reverse mt-1">
                             <div class="card w-75">
@@ -78,10 +88,10 @@
                                 </div>
                             </div>
                         </div>
-                          </c:if>    
-                      </c:forEach>  
+                     </c:if>    
+                     </c:forEach>  
                           
-                        <form class="form-inline" action="/bbs/board/reply" method="post">
+                           <form class="form-inline" action="/bbs/board/reply" method="post">
                             <input type="hidden" name="bid" value="${board.bid}">     <!-- bid -->
                             <input type="hidden" name="uid" value="${board.uid}">     <!-- uid -->
                             <table class="table table-borderless mt-2">
