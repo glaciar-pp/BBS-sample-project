@@ -34,12 +34,12 @@
 			                    <tr>
 			                        <td><label for="content">내용</label></td>
 			                        <td>
-			                        	<textarea class="form-control" name ="content" rows="10">${board.content}</textarea>
+			                        	<textarea class="form-control" name ="content" id="content" rows="10">${board.content}</textarea>
 			                        </td>
 			                    </tr>
 			                    <tr>
 			                        <td><label for="files">첨부파일</label></td>
-			                        <td><input class="form-control" type="text" name="files" value="${board.files}"></td>
+			                        <td><input class="form-control" type="text" name="files" id="files" value="${board.files}"></td>
 			                    </tr>
 			                    <tr>
 			                        <td colspan="2" style="text-align: center;">
