@@ -26,7 +26,7 @@ public class FileDownload extends HttpServlet {
 		File f = new File(fileName);
 		response.setContentType("text/html; charset=utf-8");
 		response.setHeader("Cache-Control", "no-cache");
-		response.addHeader("Content-disposition", "attachment; fileName="+fileName);
+		response.addHeader("Content-disposition", "attachment; fileName="+file);
 		FileInputStream is = new FileInputStream(f);
 		byte buffer[] = new byte[1024*8];
 		while (true) {
@@ -36,11 +36,6 @@ public class FileDownload extends HttpServlet {
 			out.write(buffer, 0, count);
 		}
 		is.close(); out.close();
-	}
-
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 	}
 
 }
